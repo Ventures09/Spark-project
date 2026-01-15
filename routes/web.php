@@ -6,6 +6,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\UserDashboard\MainController;
 use App\Http\Controllers\Logs\LogsController;
 use App\Http\Controllers\Students\StudentsController;
+use App\Http\Controllers\Students\StudentsDitController;
 use App\Http\Controllers\Events\EventsController;
 
 /*
@@ -32,6 +33,8 @@ Route::get('/logs', [LogsController::class, 'index'])
 // Students page
 Route::get('/students', [StudentsController::class, 'index'])
     ->name('students.studentspage');
+
+Route::get('/students/dit', [StudentsDitController::class, 'index'])->name('students.studentspagedit');
 
 // Events page
 Route::get('/events', [EventsController::class, 'index'])

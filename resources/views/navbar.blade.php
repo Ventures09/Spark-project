@@ -21,8 +21,8 @@
             </li>
             <li>
                 <a href="{{ route('students.studentspage') }}" 
-                   class="nav-item {{ Route::is('students.studentspage') ? 'active' : '' }}">
-                   Students
+                    class="nav-item {{ Route::is('students.studentspage') || Route::is('students.studentspagedit') ? 'active' : '' }}">
+                    Students
                 </a>
             </li>
             <li>

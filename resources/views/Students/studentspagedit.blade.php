@@ -14,12 +14,12 @@
 
                 <div class="top-actions">
                     <a href="{{ route('students.studentspage') }}">
-                        <button class="program-btn active">BSIT</button>
+                        <button class="program-btn">BSIT</button>
                     </a>
                     <a href="{{ route('students.studentspagedit') }}">
-                        <button class="program-btn">DIT</button>
+                        <button class="program-btn active">DIT</button>
                     </a>
-
+                
                     <div class="right-actions">
                         <div class="search-box">
                             <input type="text" placeholder="Search">
@@ -27,18 +27,19 @@
                                 <img src="{{ asset('storage/search.png') }}">
                             </button>
                         </div>
-
+                
                         <button class="filter-btn">
                             Filter by Category
                             <img src="{{ asset('storage/arrowdown.png') }}">
                         </button>
-
+                
                         <button class="export-btn">
                             <img src="{{ asset('storage/fileexport.png') }}">
                             EXPORT
                         </button>
                     </div>
                 </div>
+                
             </div>
 
             <!-- TABLE -->
