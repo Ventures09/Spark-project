@@ -202,7 +202,7 @@ html, body {
 }
 
 .logs-empty {
-    height: 520px;
+    height: 560px;
     display: flex;
     align-items: center;
     justify-content: center;
