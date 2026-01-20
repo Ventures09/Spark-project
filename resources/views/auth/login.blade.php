@@ -213,7 +213,7 @@
 <!-- ===== LOTTIE LOADING MODAL ===== -->
 <div id="loadingModal">
     <lottie-player 
-        src="{{ asset('storage/DINOSAUR.json') }}" 
+        src="{{ asset('storage/Dinodino.json') }}" 
         background="transparent" 
         speed="1" 
         loop 

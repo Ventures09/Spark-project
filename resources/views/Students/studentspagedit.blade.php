@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'BSIT Masterlist')
+@section('title', 'DIT Masterlist')
 
 @section('content')
 <section class="dashboard-hero">
@@ -10,7 +10,7 @@
         <div class="masterlist-wrapper">
 
             <div class="masterlist-header">
-                <h1>BSIT Masterlist</h1>
+                <h1>DIT Masterlist</h1>
 
                 <div class="top-actions">
                     <a href="{{ route('students.studentspage') }}">
@@ -28,10 +28,20 @@
                             </button>
                         </div>
                 
-                        <button class="filter-btn">
-                            Filter by Category
-                            <img src="{{ asset('storage/arrowdown.png') }}">
-                        </button>
+                        <div class="filter-dropdown">
+                            <button class="filter-btn" id="filterToggle">
+                                Filter by Category
+                                <img src="{{ asset('storage/arrowdown.png') }}">
+                            </button>
+                        
+                            <ul class="filter-menu hidden" id="filterMenu">
+                                <li data-value="all">All</li>
+                                <li data-value="firstyear">1st Year</li>
+                                <li data-value="secondyear">2nd year</li>
+                                <li data-value="thirdyear">3rd Year</li>
+                                <li data-value="fourthyear">4th Year</li>
+                            </ul>
+                        </div>
                 
                         <button class="export-btn">
                             <img src="{{ asset('storage/fileexport.png') }}">
@@ -180,25 +190,56 @@
     .search-btn img {
         width: 18px;
     }
-    
-    .filter-btn img {
-    width: 12px;          /* standard dropdown arrow size */
-    height: 12px;
-    object-fit: contain;
-    margin-left: 4px;     /* small spacing from text */
-    }
+    .filter-dropdown {
+    position: relative;
+    display: inline-block;
+    z-index: 99999;
+}
+.filter-select,
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: #000;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 99999;
+}
 
-    .filter-btn {
-        background: #555;
-        color: #fff;
-        border: none;
-        padding: 10px 16px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;   /* keeps arrow centered vertically */
-        gap: 6px;
-        cursor: pointer;
-    }
+.filter-btn img {
+    width: 14px;
+}
+
+.filter-menu {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    list-style: none;
+    padding: 8px 0;
+    z-index: 50;
+}
+
+.filter-menu.hidden {
+    display: none;
+}
+
+.filter-menu li {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.filter-menu li:hover {
+    background: #f2f2f2;
+}
 
     
     .export-btn {
@@ -273,4 +314,34 @@
     }
 
     </style>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById('filterToggle');
+    const menu = document.getElementById('filterMenu');
+
+    if (!toggle || !menu) return;
+
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+        menu.classList.add('hidden');
+    });
+
+    // Handle item click
+    menu.querySelectorAll('li').forEach(item => {
+        item.addEventListener('click', () => {
+            toggle.innerHTML = item.textContent + 
+                ' <img src="{{ asset("storage/arrowdown.png") }}">';
+            menu.classList.add('hidden');
+        });
+    });
+});
+</script>
+@endpush
     
