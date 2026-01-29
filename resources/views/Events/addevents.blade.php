@@ -77,12 +77,85 @@
 }
 
 /* FORM STYLES */
-.form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
-.form-group label { font-size: 14px; letter-spacing: 3px; font-weight: 600; }
-input, select { height: 56px; border-radius: 14px; border: none; background: #eaeaea; padding: 0 18px; font-size: 15px; outline: none; }
-.two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-.form-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
-.btn-primary { height: 60px; border-radius: 16px; border: none; background: #000; color: #fff; font-size: 14px; letter-spacing: 3px; cursor: pointer; }
-.btn-outline { height: 60px; border-radius: 16px; border: 3px solid #000; background: transparent; color: #000; font-size: 14px; letter-spacing: 3px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.form-group { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+    margin-bottom: 26px; 
+}
+
+.form-group label { 
+    font-size: 14px; 
+    letter-spacing: 3px; 
+    font-weight: 600; 
+}
+
+/* Base input & select styles */
+input, 
+select { 
+    height: 56px; 
+    border-radius: 14px; 
+    border: none; 
+    background: #eaeaea; 
+    padding: 0 18px; 
+    font-size: 15px; 
+    outline: none; 
+}
+
+/* ✅ Custom SELECT arrow */
+.form-group select {
+    padding-right: 48px; /* space for arrow */
+
+    /* Remove default arrow */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* Custom arrow */
+    background-image: url('/storage/arrowdown.jpg');
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    background-size: 14px;
+}
+
+/* Layout helpers */
+.two-cols { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 30px; 
+}
+
+.form-actions { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 30px; 
+    margin-top: 30px; 
+}
+
+.btn-primary { 
+    height: 60px; 
+    border-radius: 16px; 
+    border: none; 
+    background: #000; 
+    color: #fff; 
+    font-size: 14px; 
+    letter-spacing: 3px; 
+    cursor: pointer; 
+}
+
+.btn-outline { 
+    height: 60px; 
+    border-radius: 16px; 
+    border: 3px solid #000; 
+    background: transparent; 
+    color: #000; 
+    font-size: 14px; 
+    letter-spacing: 3px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    text-decoration: none; 
+}
+
 </style>
 @endpush

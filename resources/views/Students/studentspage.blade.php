@@ -30,7 +30,7 @@
 
                         <div class="filter-dropdown">
                             <button class="filter-btn" id="filterToggle">
-                                Filter by Category
+                                Filter by Year
                                 <img src="{{ asset('storage/arrowdown.png') }}">
                             </button>
                         
@@ -321,29 +321,44 @@
 document.addEventListener('DOMContentLoaded', () => {
     const toggle = document.getElementById('filterToggle');
     const menu = document.getElementById('filterMenu');
+    const arrowImg = '{{ asset("storage/arrowdown.png") }}';
 
     if (!toggle || !menu) return;
+
+    // ✅ Restore saved filter on refresh
+    const savedFilter = localStorage.getItem('yearFilter');
+    if (savedFilter) {
+        toggle.innerHTML = savedFilter + ` <img src="${arrowImg}">`;
+    }
 
     toggle.addEventListener('click', (e) => {
         e.stopPropagation();
         menu.classList.toggle('hidden');
     });
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', () => {
         menu.classList.add('hidden');
     });
 
-    // Handle item click
     menu.querySelectorAll('li').forEach(item => {
         item.addEventListener('click', () => {
-            toggle.innerHTML = item.textContent + 
-                ' <img src="{{ asset("storage/arrowdown.png") }}">';
+            const selectedText = item.textContent;
+
+            // ✅ Update button text
+            toggle.innerHTML = selectedText + ` <img src="${arrowImg}">`;
+
+            // ✅ Save selection
+            localStorage.setItem('yearFilter', selectedText);
+
             menu.classList.add('hidden');
+
+            // OPTIONAL: filter table here later
+            // filterTable(item.dataset.value);
         });
     });
 });
 </script>
 @endpush
+
 
     
