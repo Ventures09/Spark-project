@@ -7,10 +7,28 @@
 <!-- ===== BACKGROUND PAGE ===== -->
 <section class="dashboard-hero">
     <div class="dashboard-overlay">
+
         <div class="events-center">
             <h1>EVENTS</h1>
             <button class="add-event-btn" id="openAddEventBtn">ADD EVENT</button>
         </div>
+
+        <!-- ===== EVENTS DISPLAY ===== -->
+        <div class="events-floating">
+            @forelse($events as $event)
+    <a href="{{ route('events.show', $event->id) }}" class="event-pill">
+        {{ strtoupper($event->name) }}
+    </a>
+@empty
+    <div class="no-events-center">
+        <img src="{{ asset('storage/empty.png') }}" alt="No events" class="empty-icon">
+        <p class="no-events">No events yet</p>
+    </div>
+@endforelse
+
+
+        </div>
+
     </div>
 </section>
 
@@ -19,16 +37,18 @@
     <div class="add-event-modal">
         <button id="closeAddEventBtn" class="modal-close">&times;</button>
 
-        <form>
+        <form action="{{ route('events.store') }}" method="POST">
+            @csrf
+
             <div class="form-row two-cols">
                 <div class="form-group">
                     <label>DATE</label>
-                    <input type="date" required>
+                    <input type="date" name="date" required>
                 </div>
 
                 <div class="form-group">
                     <label>DAY</label>
-                    <select required>
+                    <select name="day" required>
                         <option disabled selected></option>
                         <option>Monday</option>
                         <option>Tuesday</option>
@@ -43,7 +63,7 @@
 
             <div class="form-group">
                 <label>EVENT NAME</label>
-                <input type="text" placeholder="Event name" required>
+                <input type="text" name="name" placeholder="Event name" required>
             </div>
 
             <div class="form-actions">
@@ -64,6 +84,48 @@ html, body {
     padding: 0;
     height: 100%;
 }
+
+/* ===== EVENTS FLOATING LIST ===== */
+.events-floating {
+    position: absolute;
+    top: 350px;
+    width: 100%;
+    max-width: 1200px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* LEFT & RIGHT */
+    gap: 24px 40px; /* row gap | column gap */
+
+    z-index: 2;
+}
+
+.event-pill {
+    width: 100%;
+    padding: 18px 30px;
+    background: #1f1f1f;
+    color: white;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    border-radius: 16px;
+    text-decoration: none;
+    transition: all .3s ease;
+}
+
+.event-pill:hover {
+    background: #000;
+    transform: scale(1.03);
+}
+
+.no-events {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #444;
+}
+
 
 /* ===== PAGE BACKGROUND ===== */
 .dashboard-hero {
@@ -191,6 +253,38 @@ input, select {
     border-radius: 16px;
     height: 60px;
 }
+
+/* ===== NO EVENTS CENTER SLIGHTLY LOWER ===== */
+.no-events-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* starts from top offset */
+    gap: 8px; /* smaller space between icon and text */
+    
+    position: absolute;
+    top: 180px; /* adjust this value to move the block lower or higher */
+    left: 50%;
+    transform: translateX(-50%); /* horizontal center only */
+}
+
+.no-events-center .empty-icon {
+    width: 60px;
+    opacity: 0.5;
+}
+
+.no-events {
+    font-size: 22px;
+    font-weight: 600;
+    color: #555;
+    letter-spacing: 2px;
+    text-align: center;
+    margin: 0; /* remove default margin */
+}
+
+
+
+
 </style>
 
 
