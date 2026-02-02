@@ -42,9 +42,10 @@
 
             <div class="stat-card">
                 <p class="stat-title">Total | <strong>EVENTS</strong></p>
-                <h2>0</h2>
+                <h2 id="eventsCount">0</h2>
                 <span>Events</span>
             </div>
+            
         </div>
 
     </div>
@@ -146,4 +147,24 @@ html, body {
     color: #333;
 }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const countEl = document.getElementById('eventsCount');
+        const total = {{ $totalEvents }};
+        let current = 0;
+    
+        const interval = setInterval(() => {
+            if(current < total){
+                current++;
+                countEl.textContent = current;
+            } else {
+                clearInterval(interval);
+            }
+        }, 50); // increment every 50ms
+    });
+    </script>
+    
 @endpush
+
+

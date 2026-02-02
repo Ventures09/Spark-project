@@ -74,6 +74,14 @@
     </div>
 </section>
 
+<!-- ===== PROCESSING MODAL (MUST BE SEPARATE) ===== -->
+<div id="processingModal" class="processing-backdrop hidden">
+    <div class="processing-box">
+        <div id="dinoAnimation" style="width:200px;height:200px;"></div>
+        <p class="processing-text">Adding event...</p>
+    </div>
+</div>
+
 @endsection
 
 
@@ -282,31 +290,90 @@ input, select {
     margin: 0; /* remove default margin */
 }
 
+/* ===== PROCESSING MODAL ===== */
+.processing-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.processing-backdrop.hidden {
+    display: none;
+}
+
+.processing-box {
+    background: #fff;
+    padding: 40px 50px;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,.25);
+}
+
+.processing-text {
+    margin-top: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #333;
+}
+
+
 
 
 
 </style>
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const openBtn = document.getElementById('openAddEventBtn');
-    const modal = document.getElementById('addEventModal');
-    const closeBtn = document.getElementById('closeAddEventBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
+    document.addEventListener('DOMContentLoaded', () => {
+        const openBtn = document.getElementById('openAddEventBtn');
+        const modal = document.getElementById('addEventModal');
+        const closeBtn = document.getElementById('closeAddEventBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+    
+        const processingModal = document.getElementById('processingModal');
+        const form = modal.querySelector('form');
+    
+        openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
+    
+        modal.addEventListener('click', e => {
+            if (e.target === modal) modal.classList.add('hidden');
+        });
+    
+        /* ===== SHOW PROCESSING ON SUBMIT ===== */
+        form.addEventListener('submit', (e) => {
+    e.preventDefault(); // STOP immediate submit
 
-    openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
-    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
-    cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
+    modal.classList.add('hidden');
+    processingModal.classList.remove('hidden');
 
-    modal.addEventListener('click', e => {
-        if (e.target === modal) modal.classList.add('hidden');
-    });
+    // submit after short delay so modal is visible
+    setTimeout(() => {
+        form.submit();
+    }, 3000);
 });
-</script>
+
+    
+        /* ===== LOTTIE DINO ===== */
+        lottie.loadAnimation({
+            container: document.getElementById('dinoAnimation'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: "{{ asset('storage/runrex.json') }}"
+
+        });
+    });
+    </script>
+    
 @endpush
 
 

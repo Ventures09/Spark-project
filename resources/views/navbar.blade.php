@@ -27,7 +27,7 @@
             </li>
             <li>
                 <a href="{{ route('events.index') }}" 
-                   class="nav-item {{ Route::is('events.eventspage') ? 'active' : '' }}">
+                   class="nav-item {{ Route::is('events.index') ? 'active' : '' }}">
                    Events
                 </a>
             </li>

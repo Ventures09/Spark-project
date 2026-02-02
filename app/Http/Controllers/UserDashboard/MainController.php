@@ -4,6 +4,7 @@ namespace App\Http\Controllers\UserDashboard;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Event;
 
 class MainController extends Controller
 {
@@ -13,6 +14,10 @@ class MainController extends Controller
             return redirect()->route('login');
         }
 
-        return view('dashboard.main'); // resources/views/Dashboard/main.blade.php
+        // Fetch total events from database
+        $totalEvents = Event::count();
+
+        return view('dashboard.main', compact('totalEvents')); 
+        // Now $totalEvents is available in the Blade
     }
 }

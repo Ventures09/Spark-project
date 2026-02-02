@@ -16,7 +16,7 @@
             <form id="deleteEventForm" action="{{ route('events.destroy', $event->id) }}" method="POST" style="display: inline;">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn-delete">
+                <button type="button" id="triggerDelete" class="btn-delete">
                     <img src="{{ asset('storage/trash.png') }}" alt="Delete" class="trash-icon">
                     DELETE
                 </button>
@@ -93,7 +93,6 @@
             </tbody>
         </table>
     </div>
-
     <!-- DELETE CONFIRMATION MODAL -->
 <div id="deleteConfirmModal" class="delete-modal-backdrop hidden">
     <div class="delete-modal">
@@ -105,12 +104,24 @@
     </div>
 </div>
 
+
+
     
     
 </section>
 
+<!-- ===== DELETE PROCESSING MODAL ===== -->
+<div id="deleteProcessingModal" class="processing-backdrop hidden">
+    <div class="processing-box">
+        <div id="deleteDinoAnimation" style="width:200px;height:200px;"></div>
+        <p class="processing-text">Deleting event...</p>
+    </div>
+</div>
+
+
 
 @endsection
+
 
 
 @push('styles')
@@ -442,75 +453,87 @@ td {
     font-weight: 600;
 }
 
+.processing-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000; /* on top of everything */
+}
+
+.processing-backdrop.hidden {
+    display: none;
+}
+
+.processing-box {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 20px;
+    text-align: center;
+}
+
 
 </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // ===== FILTER DROPDOWN =====
-    const toggle = document.getElementById('filterToggle'); // dropdown button
-    const menu = document.getElementById('filterMenu');     // dropdown menu
-    const arrowImg = '{{ asset("storage/arrowdown.png") }}'; // arrow icon
 
-    if (toggle && menu) {
-        // Restore saved filter selection on page refresh
-        const savedFilter = localStorage.getItem('yearFilter');
-        if (savedFilter) {
-            toggle.innerHTML = savedFilter + ` <img src="${arrowImg}">`;
-        }
+// ===== DELETE MODALS =====
+const triggerDelete = document.getElementById('triggerDelete'); // Delete button
+const confirmModal = document.getElementById('deleteConfirmModal'); // Confirmation modal
+const processingModal = document.getElementById('deleteProcessingModal'); // Processing modal
+const deleteForm = document.getElementById('deleteEventForm'); // Form
+const confirmBtn = document.getElementById('confirmDelete'); // Yes
+const cancelBtn = document.getElementById('cancelDelete');   // No
 
-        // Toggle dropdown visibility
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            menu.classList.toggle('hidden');
-        });
+// Load Lottie animation
+const deleteAnimation = lottie.loadAnimation({
+    container: document.getElementById('deleteDinoAnimation'),
+    renderer: 'svg',
+    loop: true,
+    autoplay: false,
+    path: "{{ asset('storage/RunRex.json') }}"
+});
 
-        // Close dropdown if clicking outside
-        document.addEventListener('click', () => {
-            menu.classList.add('hidden');
-        });
-
-        // Handle selection
-        menu.querySelectorAll('li').forEach(item => {
-            item.addEventListener('click', () => {
-                const selectedText = item.textContent;
-                toggle.innerHTML = selectedText + ` <img src="${arrowImg}">`;
-                localStorage.setItem('yearFilter', selectedText);
-                menu.classList.add('hidden');
-            });
-        });
-    }
-
-    // ===== DELETE CONFIRMATION MODAL =====
-const deleteForm = document.getElementById('deleteEventForm');
-const deleteModal = document.getElementById('deleteConfirmModal');
-const confirmBtn = document.getElementById('confirmDelete');
-const cancelBtn = document.getElementById('cancelDelete');
-
-if (deleteForm && deleteModal) {
-    deleteForm.addEventListener('submit', function(e) {
-        e.preventDefault();           // stop default submit
-        deleteModal.classList.remove('hidden'); // show modal
-    });
-
-    confirmBtn.addEventListener('click', () => {
-        deleteForm.submit();          // submit form if Yes
-    });
-
-    cancelBtn.addEventListener('click', () => {
-        deleteModal.classList.add('hidden'); // hide modal if No
-    });
-
-    // Click outside modal to close
-    deleteModal.addEventListener('click', (e) => {
-        if (e.target === deleteModal) {
-            deleteModal.classList.add('hidden');
-        }
+if (triggerDelete) {
+    triggerDelete.addEventListener('click', () => {
+        confirmModal.classList.remove('hidden'); // Show confirmation modal
     });
 }
 
+if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+        confirmModal.classList.add('hidden');      // Hide confirmation
+        processingModal.classList.remove('hidden'); // Show processing
+        deleteAnimation.play();                     // Start Lottie
+
+        setTimeout(() => {
+            deleteForm.submit();                   // Submit after 3 seconds
+        }, 3000);
+    });
+}
+
+if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => {
+        confirmModal.classList.add('hidden'); // Hide confirmation modal
+    });
+}
+
+// Click outside confirmation modal to close it
+confirmModal.addEventListener('click', (e) => {
+    if (e.target === confirmModal) {
+        confirmModal.classList.add('hidden');
+    }
 });
+
+});
+
 </script>
 @endpush
 
