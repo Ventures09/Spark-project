@@ -2,23 +2,16 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+class EventServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
-
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
-    {
-        //
-    }
+    protected $listen = [
+        \Illuminate\Auth\Events\Login::class => [
+            \App\Listeners\LogSuccessfulLogin::class,
+        ],
+        \Illuminate\Auth\Events\Logout::class => [
+            \App\Listeners\LogSuccessfulLogout::class,
+        ],
+    ];
 }

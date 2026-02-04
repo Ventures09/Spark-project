@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Events;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Event;
+use App\Models\Log; // Make sure to import Log
 
 class EventsController extends Controller
 {
@@ -24,13 +25,20 @@ class EventsController extends Controller
             'day'  => 'required|string',
         ]);
 
-        Event::create([
+        $event = Event::create([
             'name' => $request->name,
             'date' => $request->date,
             'day'  => $request->day,
         ]);
 
-        return redirect()->route('events.index');
+        // Log the event creation
+        Log::create([
+            'action' => 'create',
+            'module' => 'Event',
+            'details' => "Event '{$event->name}' created",
+        ]);
+
+        return redirect()->route('events.index')->with('success', 'Event created successfully.');
     }
 
     // Show single event page
@@ -39,13 +47,22 @@ class EventsController extends Controller
         return view('events.eventname', compact('event'));
     }
 
+    // Delete event
     public function destroy(Event $event)
-{
-    // Delete the event from the database
-    $event->delete();
+    {
+        $eventName = $event->name;
 
-    // Redirect back to the event list with a success message
-    return redirect()->route('events.index')->with('success', 'Event deleted successfully.');
-}
+        // Delete the event from the database
+        $event->delete();
 
+        // Log the deletion
+        Log::create([
+            'action' => 'delete',
+            'module' => 'Event',
+            'details' => "Event '{$eventName}' deleted",
+        ]);
+
+        // Redirect back to the event list with a success message
+        return redirect()->route('events.index')->with('success', 'Event deleted successfully.');
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Events;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Event;
+use App\Models\Log; // Include the Log model
 
 class EventNameController extends Controller
 {
@@ -23,21 +24,36 @@ class EventNameController extends Controller
             'day'  => $request->event_day,
         ]);
 
+        // Log event creation
+        Log::create([
+            'action' => 'create',
+            'module' => 'Event',
+            'details' => 'Event "' . $event->name . '" created by ' . ($request->session()->get('email') ?? 'Guest'),
+        ]);
+
         // Redirect to eventname.blade.php
         return redirect()->route('events.show', $event->id);
     }
 
-    // Controller for eventname.blade.php
+    // Show single event page
     public function show(Event $event)
     {
         return view('eventname', compact('event'));
     }
-    
-    public function destroy(Event $event)
-{
-    $event->delete();
-    return redirect()->route('events.index')->with('success', 'Event deleted successfully.');
-}
 
+    // Delete an event
+    public function destroy(Event $event, Request $request)
+    {
+        $eventName = $event->name;
+        $event->delete();
 
+        // Log event deletion
+        Log::create([
+            'action' => 'delete',
+            'module' => 'Event',
+            'details' => 'Event "' . $eventName . '" deleted by ' . ($request->session()->get('email') ?? 'Guest'),
+        ]);
+
+        return redirect()->route('events.index')->with('success', 'Event deleted successfully.');
+    }
 }
