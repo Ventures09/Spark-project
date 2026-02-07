@@ -38,7 +38,7 @@
     <div class="nav-right">
         <div class="profile-dropdown">
             <div class="profile-icon" onclick="toggleDropdown()">
-                <i class="fas fa-user"></i>
+                <img src="{{ asset('storage/iictlogo.png') }}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%;">
             </div>
 
             <!-- Dropdown menu -->
@@ -55,6 +55,19 @@
         </div>
     </div>
 </nav>
+
+<!-- ===== LOGOUT CONFIRMATION MODAL ===== -->
+<div id="logoutConfirmModal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="confirm-content">
+        <p>Are you sure you want to log out?</p>
+        <div class="confirm-actions">
+            <button id="confirmLogoutBtn" class="btn-primary">Yes</button>
+            <button id="cancelLogoutBtn" class="btn-outline">No</button>
+        </div>
+    </div>
+</div>
+
 
 <!-- ===== LOGGING OUT LOTTIE MODAL ===== -->
 <div id="loadingModalLogout" style="display: none;">
@@ -120,6 +133,53 @@
     }
     .modal-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
     .modal-content { position:relative; z-index:10000; display:flex; flex-direction:column; align-items:center; gap:16px; color:#fff; font-size:18px; font-weight:600; }
+    
+    /* ===== LOGOUT CONFIRM MODAL ===== */
+#logoutConfirmModal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.confirm-content {
+    position: relative;
+    z-index: 10000;
+    background: #fff;
+    padding: 28px 36px;
+    border-radius: 16px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.confirm-actions {
+    margin-top: 22px;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+}
+
+.confirm-actions button {
+    width: 110px;
+    height: 38px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #222;
+    color: #fff;
+}
+
+.btn-outline {
+    background: #e5e5e5;
+    color: #222;
+}
+
     </style>
 
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -131,8 +191,7 @@
         const dropdown = document.getElementById('profileDropdown');
         dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
     }
-    
-    // Close dropdown if clicked outside
+
     window.addEventListener('click', function(e) {
         const dropdown = document.getElementById('profileDropdown');
         const icon = document.querySelector('.profile-icon');
@@ -140,23 +199,35 @@
             dropdown.style.display = 'none';
         }
     });
-    
-    // ===== LOGOUT LOTTIE =====
+
+    // ===== LOGOUT FLOW =====
     const logoutForm = document.getElementById('logoutForm');
-    const loadingModalLogout = document.getElementById('loadingModalLogout');
-    
+    const confirmModal = document.getElementById('logoutConfirmModal');
+    const loadingModal = document.getElementById('loadingModalLogout');
+    const confirmBtn = document.getElementById('confirmLogoutBtn');
+    const cancelBtn = document.getElementById('cancelLogoutBtn');
+
+    // Intercept logout click
     logoutForm.addEventListener('submit', function(e) {
-        e.preventDefault(); // prevent immediate logout
-    
-        // Show modal
-        loadingModalLogout.style.display = 'flex';
-    
-        // Disable button
+        e.preventDefault();
+        confirmModal.style.display = 'flex';
+    });
+
+    // Cancel logout
+    cancelBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
+    });
+
+    // Confirm logout
+    confirmBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
+        loadingModal.style.display = 'flex';
+
         logoutForm.querySelector('button[type="submit"]').disabled = true;
-    
-        // Submit after 5 seconds
+
         setTimeout(() => {
             logoutForm.submit();
         }, 2000);
     });
-    </script>
+</script>
+

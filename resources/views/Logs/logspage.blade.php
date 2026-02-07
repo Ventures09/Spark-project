@@ -11,17 +11,20 @@
                 <h1>Logs</h1>
                 <div class="logs-filters">
                     <label>FROM</label>
-                    <input type="date">
-                    <label>TO</label>
-                    <input type="date">
+                        <input type="date" id="fromDate">
+                            <label>TO</label>
+                        <input type="date" id="toDate">
+                        <button class="search-btn" id="dateSearchBtn">
+                            <img src="{{ asset('storage/search.png') }}" alt="Search">
+                        </button>
                     <div class="filters-right">
-                        <input type="text" placeholder="Search">
+                        <input type="text" placeholder="Search" id="logSearch">
                         <button class="search-btn">
                             <img src="{{ asset('storage/search.png') }}" alt="Search">
                         </button>
                         <div class="filter-dropdown">
                             <button class="filter-btn" onclick="toggleFilterDropdown(event)">
-                                Filter by Action
+                                <span id="currentFilter">All</span>
                                 <img src="{{ asset('storage/arrowdown.png') }}" class="arrow-icon" alt="Arrow">
                             </button>
                             <div class="filter-menu" id="filterDropdown">
@@ -34,6 +37,7 @@
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </div>
 
@@ -74,7 +78,7 @@
 
 
                 @if ($logs->hasPages())
-                <div class="logs-pagination">
+                <div class="logs-pagination" id="logsPagination">
                     <button class="page-btn {{ $logs->onFirstPage() ? 'disabled' : '' }}"
                         @if(!$logs->onFirstPage()) onclick="window.location='{{ $logs->previousPageUrl() }}'" @endif>
                         Prev
@@ -199,6 +203,12 @@ html, body {
     background-color: #E3E3E3; /* light gray */
 }
 
+.logs-table-body {
+    width: 100%;
+}
+
+
+
 
 /* Right side group */
 .filters-right {
@@ -233,9 +243,19 @@ html, body {
     background: #fff;
     border-radius: 18px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-    overflow-x: hidden;
-    overflow-y: visible;
+
+    position: relative;   /* 🔥 anchor for pagination */
+    
 }
+.logs-table-body .logs-row:last-child {
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+}
+
+.logs-table-body {
+    overflow: hidden;
+}
+
 
 .logs-table-header {
     display: grid;
@@ -245,6 +265,9 @@ html, body {
     padding: 16px 24px;
     background: #eaeaea;
     font-weight: 600;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    
 }
 
 .clear-btn {
@@ -331,13 +354,21 @@ html, body {
 
 /* ===== PAGINATION ===== */
 .logs-pagination {
+    position: fixed;        /* 🔥 THIS IS THE KEY */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    padding: 18px 0 22px;
-    border-top: 1px solid #eee;
+
+    padding: 40px 0;
+
+    z-index: 999;           /* stay above content */
 }
+
 
 .page-btn {
     min-width: 36px;
@@ -371,6 +402,7 @@ html, body {
 
 @push('scripts')
 <script>
+// ===== FILTER DROPDOWN =====
 function toggleFilterDropdown(event) {
     event.stopPropagation();
     const dropdown = document.getElementById('filterDropdown');
@@ -381,9 +413,117 @@ function toggleFilterDropdown(event) {
     dropdown.style.display = isOpen ? 'none' : 'block';
     wrapper.classList.toggle('open');
 }
+
 window.addEventListener('click', function () {
     document.querySelectorAll('.filter-menu').forEach(menu => menu.style.display = 'none');
     document.querySelectorAll('.filter-dropdown').forEach(fd => fd.classList.remove('open'));
 });
+
+// ===== VARIABLES =====
+let currentActionFilter = 'all';
+const originalRows = Array.from(document.querySelectorAll('.logs-table-body .logs-row'));
+
+// ===== FILTER BY ACTION =====
+document.querySelectorAll('#filterDropdown button').forEach(btn => {
+    btn.addEventListener('click', function() {
+        currentActionFilter = this.dataset.action;
+        document.getElementById('currentFilter').textContent = this.textContent;
+        applyFilters(false);
+        const dropdown = document.getElementById('filterDropdown');
+        dropdown.style.display = 'none';
+        dropdown.closest('.filter-dropdown').classList.remove('open');
+    });
+});
+
+// ===== DATE SEARCH BUTTON =====
+document.getElementById('dateSearchBtn').addEventListener('click', function() {
+    applyFilters(true); // sort by date
+});
+
+// ===== TEXT SEARCH BUTTON =====
+document.querySelectorAll('.filters-right .search-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        applyFilters(false, true); // search only, no date sort
+    });
+});
+
+// ===== FILTER FUNCTION =====
+function applyFilters(sortByDate = false, searchOnly = false) {
+    const fromInput = document.getElementById('fromDate').value;
+    const toInput = document.getElementById('toDate').value;
+    const searchQuery = document.getElementById('logSearch').value.toLowerCase();
+
+    let filteredRows = originalRows.filter(row => {
+        const rowAction = row.children[2].textContent.toLowerCase();
+        const rowDate = row.children[0].textContent;
+        const details = row.children[4].textContent.toLowerCase();
+        const module = row.children[3].textContent.toLowerCase();
+
+        let show = true;
+
+        if (!searchOnly) {
+            if (currentActionFilter !== 'all' && rowAction !== currentActionFilter) show = false;
+            if (fromInput && rowDate < fromInput) show = false;
+            if (toInput && rowDate > toInput) show = false;
+        }
+
+        if (searchQuery) {
+            const searchMatch = details.includes(searchQuery) || module.includes(searchQuery) || rowAction.includes(searchQuery) || rowDate.includes(searchQuery);
+            if (!searchMatch) show = false;
+        }
+
+        return show;
+    });
+
+    // Sort by date if requested
+    if (sortByDate) {
+        filteredRows.sort((a, b) => new Date(b.children[0].textContent) - new Date(a.children[0].textContent));
+    }
+
+    // Render filtered rows
+    const tableBody = document.querySelector('.logs-table-body');
+    tableBody.innerHTML = '';
+    filteredRows.forEach((row, index) => {
+        row.style.display = 'grid';
+        row.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#E3E3E3';
+        tableBody.appendChild(row);
+    });
+
+    // 🔥 Toggle pagination after filtering/search
+    togglePagination(filteredRows.length, !!searchQuery || sortByDate);
+}
+
+// ===== TOGGLE PAGINATION =====
+function togglePagination(rowCount, isSearch = false) {
+    const pagination = document.getElementById('logsPagination');
+    if (!pagination) return;
+
+    // Show pagination if:
+    // 1) Action filter is "All" and not searching
+    // 2) OR rowCount >= 11
+    if ((currentActionFilter === 'all' && !isSearch) || rowCount >= 11) {
+        pagination.style.display = 'flex';
+    } else {
+        pagination.style.display = 'none';
+    }
+}
+
+// 🔹 Initialize pagination on page load
+document.addEventListener('DOMContentLoaded', function() {
+    togglePagination(originalRows.length);
+});
+
+
+
+
+
+
 </script>
+
 @endpush
+
+
+
+
+
+

@@ -48,17 +48,9 @@
 
                 <div class="form-group">
                     <label>DAY</label>
-                    <select name="day" required>
-                        <option disabled selected></option>
-                        <option>Monday</option>
-                        <option>Tuesday</option>
-                        <option>Wednesday</option>
-                        <option>Thursday</option>
-                        <option>Friday</option>
-                        <option>Saturday</option>
-                        <option>Sunday</option>
-                    </select>
+                    <input type="text" name="day" id="dayInput" readonly required>
                 </div>
+                
             </div>
 
             <div class="form-group">
@@ -73,6 +65,18 @@
         </form>
     </div>
 </section>
+
+<!-- ===== DATE WARNING MODAL ===== -->
+<section id="dateWarningModal" class="add-event-backdrop hidden">
+    <div class="add-event-modal" style="max-width: 420px; text-align: center;">
+        <h3 style="margin-bottom: 12px;">⚠ Invalid Date</h3>
+        <p style="margin-bottom: 20px;">
+            You selected a past date. Please choose today or a future date.
+        </p>
+        <button id="closeWarningBtn" class="btn-primary">OK</button>
+    </div>
+</section>
+
 
 <!-- ===== PROCESSING MODAL (MUST BE SEPARATE) ===== -->
 <div id="processingModal" class="processing-backdrop hidden">
@@ -320,8 +324,17 @@ input, select {
     color: #333;
 }
 
-
-
+/* ===== INVALID DATE MODAL OK BUTTON ===== */
+#dateWarningModal .btn-primary,
+#dateWarningModal #closeWarningBtn {
+    width: 120px;          /* adjust as you like */
+    padding: 10px 0;
+    text-align: center;
+    margin: 0 auto;        /* center horizontally */
+    display: block;
+    border-radius: 8px;
+    font-weight: 600;
+}
 
 
 </style>
@@ -338,42 +351,84 @@ input, select {
         const cancelBtn = document.getElementById('cancelBtn');
     
         const processingModal = document.getElementById('processingModal');
-        const form = modal.querySelector('form');
+        const warningModal = document.getElementById('dateWarningModal');
+        const closeWarningBtn = document.getElementById('closeWarningBtn');
     
+        const form = modal.querySelector('form');
+        const dateInput = form.querySelector('input[name="date"]');
+        const dayInput = form.querySelector('input[name="day"]'); // readonly day input
+        const nameInput = form.querySelector('input[name="name"]');
+    
+        // ===== OPEN MODAL =====
         openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
-        closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
-        cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
+    
+        // ===== CLOSE MODAL =====
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            // Clear inputs when modal closes
+            dateInput.value = '';
+            dayInput.value = '';
+            nameInput.value = '';
+        };
+    
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
     
         modal.addEventListener('click', e => {
-            if (e.target === modal) modal.classList.add('hidden');
+            if (e.target === modal) closeModal();
         });
     
-        /* ===== SHOW PROCESSING ON SUBMIT ===== */
-        form.addEventListener('submit', (e) => {
-    e.preventDefault(); // STOP immediate submit
-
-    modal.classList.add('hidden');
-    processingModal.classList.remove('hidden');
-
-    // submit after short delay so modal is visible
-    setTimeout(() => {
-        form.submit();
-    }, 3000);
-});
-
+        // ===== CLOSE WARNING MODAL =====
+        closeWarningBtn.addEventListener('click', () => {
+            warningModal.classList.add('hidden');
+        });
     
-        /* ===== LOTTIE DINO ===== */
+        // ===== AUTO-FILL DAY BASED ON DATE =====
+        dateInput.addEventListener('change', () => {
+            const selectedDate = new Date(dateInput.value);
+            if (!isNaN(selectedDate)) {
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                dayInput.value = days[selectedDate.getDay()];
+            } else {
+                dayInput.value = '';
+            }
+        });
+    
+        // ===== FORM SUBMIT WITH DATE VALIDATION =====
+        form.addEventListener('submit', (e) => {
+            e.preventDefault(); // STOP default submit
+    
+            const selectedDate = new Date(dateInput.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // normalize
+    
+            //  PAST DATE → SHOW WARNING
+            if (selectedDate < today) {
+                warningModal.classList.remove('hidden');
+                return;
+            }
+    
+            // ✅ VALID DATE → SHOW PROCESSING
+            modal.classList.add('hidden');
+            processingModal.classList.remove('hidden');
+    
+            setTimeout(() => {
+                form.submit();
+            }, 3000);
+        });
+    
+        // ===== LOTTIE DINO =====
         lottie.loadAnimation({
             container: document.getElementById('dinoAnimation'),
             renderer: 'svg',
             loop: true,
             autoplay: true,
             path: "{{ asset('storage/runrex.json') }}"
-
         });
     });
     </script>
     
 @endpush
+
 
 

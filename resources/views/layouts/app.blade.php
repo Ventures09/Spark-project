@@ -11,6 +11,8 @@
         @show
     </title>
 
+    <link rel="icon" href="{{ asset('storage/iictlogo.png') }}" type="image/png">
+
     <!-- CSS -->
     <link href="{{ asset('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('bootstrap/css/bootstrap-icons.css') }}" rel="stylesheet">
